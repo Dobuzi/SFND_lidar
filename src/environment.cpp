@@ -53,7 +53,7 @@ void simpleHighway(pcl::visualization::PCLVisualizer::Ptr& viewer)
     Color yellow(1, 1, 0);
     renderPointCloud(viewer, cloud, name, yellow);
     // TODO:: Create point processor
-  
+    ProcessPointClouds<pcl::PointXYZ>* processPointClouds = new ProcessPointClouds<pcl::PointXYZ>(); 
 }
 
 
