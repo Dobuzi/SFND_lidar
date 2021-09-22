@@ -94,12 +94,12 @@ std::unordered_set<int> Ransac(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, int ma
 			if (distance < distanceTol)
 			{
 				count = count + 1;
-				cout << j ;
+				cout << j << " " ;
 			}
 		}
 		cout << endl;
 		if (count > max_count) {
-			cout << count << endl;
+			cout << "count: " << count << endl;
 			max_count = count;
 		}
 	}
