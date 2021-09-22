@@ -75,10 +75,9 @@ std::unordered_set<int> Ransac(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, int ma
 	std::uniform_int_distribution<int> dis(0, cloud->points.size());
 	pcl::PointXYZ point1, point2;
 	float A, B, C, distance;
-	int count, max_count = 0;
 	std::unordered_set<int> indices;
 
-	for (int i = 0; i < maxIterations; i++)
+	while (maxIterations--)
 	{
 		point1 = cloud->points[dis(gen)];
 		point2 = cloud->points[dis(gen)];
@@ -87,7 +86,6 @@ std::unordered_set<int> Ransac(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, int ma
 		B = point2.x - point1.x;
 		C = point1.x * point2.y - point2.x * point1.y;
 
-		count = 0;
 		indices.clear ();
 
 		for (int j = 0; j < cloud->points.size(); j++)
@@ -95,13 +93,11 @@ std::unordered_set<int> Ransac(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, int ma
 			distance = abs(A * cloud->points[j].x + B * cloud->points[j].y + C) / sqrt(A * A + B * B);
 			if (distance < distanceTol)
 			{
-				count = count + 1;
 				indices.insert (j);
 			}
 		}
-		if (count > max_count) {
-			max_count = count;
-			inliersResult.swap(indices);
+		if (indices.size() > inliersResult.size()) {
+			inliersResult = indices;
 		}
 	}
 	// For max iterations 
@@ -127,7 +123,7 @@ int main ()
 	pcl::PointCloud<pcl::PointXYZ>::Ptr cloud = CreateData();
 	
 	// TODO: Change the max iteration and distance tolerance arguments for Ransac function
-	std::unordered_set<int> inliers = Ransac(cloud, 100, 0.05);
+	std::unordered_set<int> inliers = Ransac(cloud, 10, 0.5);
 
 	pcl::PointCloud<pcl::PointXYZ>::Ptr  cloudInliers(new pcl::PointCloud<pcl::PointXYZ>());
 	pcl::PointCloud<pcl::PointXYZ>::Ptr cloudOutliers(new pcl::PointCloud<pcl::PointXYZ>());
