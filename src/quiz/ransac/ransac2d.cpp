@@ -7,6 +7,9 @@
 // using templates for processPointClouds so also include .cpp to help linker
 #include "../../processPointClouds.cpp"
 
+#include <random>
+#include <cmath>
+
 pcl::PointCloud<pcl::PointXYZ>::Ptr CreateData()
 {
 	pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZ>());
@@ -67,7 +70,27 @@ std::unordered_set<int> Ransac(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, int ma
 	srand(time(NULL));
 	
 	// TODO: Fill in this function
+	std::random_device rd;
+	std::mt19937 gen(rd());
+	std::uniform_int_distribution<int> dis(0, cloud->points.size());
+	pcl::PointXYZ point1, point2;
+	float A, B, C, distance;
 
+	for (int i = 0; i < maxIterations; i++)
+	{
+		point1 = cloud->points[dis(gen)];
+		point2 = cloud->points[dis(gen)];
+
+		A = point1.y - point2.y;
+		B = point2.x - point1.x;
+		C = point1.x * point2.y - point2.x * point1.y;
+
+		for (auto pt : cloud->points)
+		{
+			distance = abs(A * pt.x + B * pt.y + C) / sqrt(A * A + B * B);
+			cout << distance << endl;
+		}
+	}
 	// For max iterations 
 
 	// Randomly sample subset and fit line
