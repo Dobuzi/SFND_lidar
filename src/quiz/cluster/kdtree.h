@@ -59,7 +59,7 @@ struct KdTree
 		insertHelper(&root, point, id, false);  
 	}
 
-	void searchHelper(std::vector<float> target, float distanceTol, std::vector<int> *ids, Node **node, bool isY)
+	void searchHelper(std::vector<float> target, float distanceTol, std::vector<int> *ids, Node **node)
 	{
 		float max_val_x = target[0] + distanceTol;
 		float min_val_x = target[0] - distanceTol;
@@ -83,8 +83,8 @@ struct KdTree
 				ids->push_back ((*node)->id);
 			}
 
-			searchHelper(target, distanceTol, ids, &((*node)->left), isY);
-			searchHelper(target, distanceTol, ids, &((*node)->right), isY);
+			searchHelper(target, distanceTol, ids, &((*node)->left));
+			searchHelper(target, distanceTol, ids, &((*node)->right));
 		}
 	}
 
@@ -92,7 +92,7 @@ struct KdTree
 	std::vector<int> search(std::vector<float> target, float distanceTol)
 	{
 		std::vector<int> ids;
-		searchHelper(target, distanceTol, &ids, &root, false);
+		searchHelper(target, distanceTol, &ids, &root);
 		return ids;
 	}
 };
