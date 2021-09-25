@@ -25,9 +25,9 @@ In this course we will be talking about sensor fusion, whch is the process of ta
 2. Pull the image and make the container from kimjw7981/SFND_lidar
    - Check out this page [kimjw7981/SFND_lidar Docker Hub](https://hub.docker.com/repository/docker/kimjw7981/sfnd)
    - Run this command for pull the image and make the container
-   ```shell
-   docker run -p 6080:80 -v /dev/shm:/dev/shm kimjw7981/sfnd
-   ```
+      ```shell
+      docker run -p 6080:80 -v /dev/shm:/dev/shm kimjw7981/sfnd
+      ```
    - Connect the linux GUI environment with [localhost:6080](localhost:6080) on your browser
 
 3. Run LX Terminal
