@@ -116,9 +116,26 @@ void simpleHighway(pcl::visualization::PCLVisualizer::Ptr& viewer)
 void cityBlock(pcl::visualization::PCLVisualizer::Ptr& viewer)
 {
     // Open 3D Viewer and display City Block
+    bool render_PCD_raw = false;
+    bool render_filtered_cloud = true;
+
     ProcessPointClouds<pcl::PointXYZI>* pointProcessorI = new ProcessPointClouds<pcl::PointXYZI>();
     pcl::PointCloud<pcl::PointXYZI>::Ptr inputCloud = pointProcessorI->loadPcd("../src/sensors/data/pcd/data_1/0000000000.pcd");
-    renderPointCloud(viewer, inputCloud, "inputCloud");
+    if (render_PCD_raw)
+    {
+        renderPointCloud(viewer, inputCloud, "inputCloud");
+    }
+
+    float filterRes = 0.5;
+    Eigen::Vector4f minPoint (0.5, 0.5, 0.5, 1);
+    Eigen::Vector4f maxPoint (0.8, 0.8, 0.8, 1);
+
+    pcl::PointCloud<pcl::PointXYZI>::Ptr filterCloud = pointProcessorI->FilterCloud(inputCloud, filterRes, minPoint, maxPoint);
+    if (render_filtered_cloud)
+    {
+        renderPointCloud(viewer, filterCloud, "filterCloud");
+    }
+
 }
 
 
