@@ -48,7 +48,8 @@ void simpleHighway(pcl::visualization::PCLVisualizer::Ptr& viewer)
     bool render_obstacle_raw = false;
     bool render_plane = true;
     bool render_clusters_as_point = true;
-    bool render_clusters_as_box = true;
+    bool render_clusters_as_Box = true;
+    bool render_clusters_as_BoxQ = false;
 
     std::vector<Car> cars = initHighway(renderScene, viewer);
     
@@ -61,7 +62,7 @@ void simpleHighway(pcl::visualization::PCLVisualizer::Ptr& viewer)
     {
         renderRays(viewer, lidar->position, cloud);
     }
-    
+
     if (render_PCD_raw)
     {
         std::string name = "pcd";
@@ -96,10 +97,16 @@ void simpleHighway(pcl::visualization::PCLVisualizer::Ptr& viewer)
             renderPointCloud(viewer, cluster, "obstacle Cloud"+std::to_string(clusterId), colors[clusterId]);
         }
         
-        if (render_clusters_as_box)
+        if (render_clusters_as_Box)
         {
             Box box = pointProcessor->BoundingBox(cluster);
             renderBox(viewer, box, clusterId);
+        }
+
+        if (render_clusters_as_BoxQ)
+        {
+            BoxQ boxq = pointProcessor->BoundingBoxQ(cluster);
+            renderBox(viewer, boxq, clusterId);
         }
         
         ++clusterId;

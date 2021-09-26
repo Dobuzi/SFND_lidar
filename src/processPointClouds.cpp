@@ -170,6 +170,53 @@ Box ProcessPointClouds<PointT>::BoundingBox(typename pcl::PointCloud<PointT>::Pt
     return box;
 }
 
+template<typename PointT>
+BoxQ ProcessPointClouds<PointT>::BoundingBoxQ(typename pcl::PointCloud<PointT>::Ptr cluster)
+{
+    // Compute principal directions
+    Eigen::Vector4f pcaCentroid;
+    pcl::compute3DCentroid(*cluster, pcaCentroid);
+    Eigen::Matrix3f covariance;
+    computeCovarianceMatrixNormalized(*cluster, pcaCentroid, covariance);
+    Eigen::SelfAdjointEigenSolver<Eigen::Matrix3f> eigen_solver(covariance, Eigen::ComputeEigenvectors);
+    Eigen::Matrix3f eigenVectorsPCA = eigen_solver.eigenvectors();
+    eigenVectorsPCA.col(2) = eigenVectorsPCA.col(0).cross(eigenVectorsPCA.col(1));
+
+    /*
+    // Easy way via the PCL-PCA interface
+    typename pcl::PointCloud<PointT>::Ptr clusterPCAprojection (new pcl::PointCloud<PointT>);
+    typename pcl::PCA<PointT> pca;
+    pca.setInputCloud(cluster);
+    pca.project(*cluster, *clusterPCAprojection);
+    std::cerr << std::endl << "Eigen Vectors: " << pca.getEigenVectors() << std::endl;
+    std::cerr << std::endl << "Eigen Values: " << pca.getEigenValues() << std::endl;
+    */
+
+    // Transform the original cloud to the origin where the principal components correspond to the axes
+    Eigen::Matrix4f projectionTransform(Eigen::Matrix4f::Identity());
+    projectionTransform.block<3, 3>(0, 0) = eigenVectorsPCA.transpose();
+    projectionTransform.block<3, 1>(0, 3) = -1.f * (projectionTransform.block<3, 3>(0, 0) * pcaCentroid.head<3>());
+    typename pcl::PointCloud<PointT>::Ptr clusterProjected (new pcl::PointCloud<PointT>);
+    pcl::transformPointCloud(*cluster, *clusterProjected, projectionTransform);
+    PointT minPoint, maxPoint;
+    pcl::getMinMax3D(*clusterProjected, minPoint, maxPoint);
+    const Eigen::Vector3f meanDiagonal = 0.5f*(maxPoint.getVector3fMap() + minPoint.getVector3fMap());
+
+    // Final transform
+    const Eigen::Quaternionf bboxQuaternion(eigenVectorsPCA);
+    const Eigen::Vector3f bboxTransform = eigenVectorsPCA * meanDiagonal + pcaCentroid.head<3>();
+
+    // Make the BoxQ
+    BoxQ boxq;
+    boxq.bboxQuaternion = bboxQuaternion;
+    boxq.bboxTransform = bboxTransform;
+    boxq.cube_width = abs(maxPoint.x - minPoint.x);
+    boxq.cube_length = abs(maxPoint.y - minPoint.y);
+    boxq.cube_height = abs(maxPoint.z - minPoint.z);
+
+    return boxq;
+}
+
 
 template<typename PointT>
 void ProcessPointClouds<PointT>::savePcd(typename pcl::PointCloud<PointT>::Ptr cloud, std::string file)
