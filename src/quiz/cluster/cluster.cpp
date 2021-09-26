@@ -7,6 +7,8 @@
 #include <string>
 #include "kdtree.h"
 
+#include <unordered_set>
+
 // Arguments:
 // window is the region to draw box around
 // increase zoom to see more of the area
@@ -75,15 +77,47 @@ void render2DTree(Node* node, pcl::visualization::PCLVisualizer::Ptr& viewer, Bo
 
 }
 
+void proximity(std::vector<std::vector<float>> points, int i, std::vector<int> *cluster, KdTree* tree, float distanceTol, std::unordered_set<int> *processed)
+{
+	processed->insert (i);
+	cluster->push_back (i);
+	
+	std::vector<int> nearby = tree->search(points[i], distanceTol);
+
+	for (int j = 0; j < nearby.size(); j++)
+	{
+		if (processed->find(nearby[j]) == processed->end())
+		{
+			proximity(points, nearby[j], cluster, tree, distanceTol, processed);
+		}
+	}
+}
+
 std::vector<std::vector<int>> euclideanCluster(const std::vector<std::vector<float>>& points, KdTree* tree, float distanceTol)
 {
-
 	// TODO: Fill out this function to return list of indices for each cluster
 
 	std::vector<std::vector<int>> clusters;
- 
-	return clusters;
+	std::unordered_set<int> processed;
+	std::vector<int> cluster;
 
+	for (int i = 0; i < points.size (); i++)
+	{	
+		if (processed.find(i) == processed.end())
+		{
+			cluster.clear();
+			proximity(points, i, &cluster, tree, distanceTol, &processed);
+			std::cout << "cluster " << clusters.size() << ": ";
+			for (int j = 0; j < cluster.size(); j++)
+			{
+				std::cout << cluster[j] << " ";
+			}
+			std::cout << std::endl;
+			clusters.push_back (cluster);
+		}
+	}
+	
+	return clusters;
 }
 
 int main ()
