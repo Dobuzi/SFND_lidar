@@ -113,7 +113,7 @@ void simpleHighway(pcl::visualization::PCLVisualizer::Ptr& viewer)
     }
 }
 
-void cityBlock(pcl::visualization::PCLVisualizer::Ptr& viewer)
+void cityBlock(pcl::visualization::PCLVisualizer::Ptr& viewer, ProcessPointClouds<pcl::PointXYZI>* pointProcessorI, const pcl::PointCloud<pcl::PointXYZI>::Ptr& inputCloud)
 {
     // Open 3D Viewer and display City Block
     bool render_PCD_raw = false;
@@ -125,8 +125,6 @@ void cityBlock(pcl::visualization::PCLVisualizer::Ptr& viewer)
     bool render_clusters_as_Box = true;
     bool render_clusters_as_BoxQ = false;
 
-    ProcessPointClouds<pcl::PointXYZI>* pointProcessorI = new ProcessPointClouds<pcl::PointXYZI>();
-    pcl::PointCloud<pcl::PointXYZI>::Ptr inputCloud = pointProcessorI->loadPcd("../src/sensors/data/pcd/data_1/0000000000.pcd");
     if (render_PCD_raw)
     {
         renderPointCloud(viewer, inputCloud, "inputCloud");
@@ -229,15 +227,37 @@ int main (int argc, char** argv)
     if (render_simple_highway)
     {
         simpleHighway(viewer);
+
+		while (!viewer->wasStopped ())
+		{
+			viewer->spinOnce ();
+		}
     }
     else
     {
-        cityBlock(viewer);
-    }
-    
+    	ProcessPointClouds<pcl::PointXYZI>* pointProcessorI = new ProcessPointClouds<pcl::PointXYZI>();
+		std::vector<boost::filesystem::path> stream = pointProcessorI->streamPcd("../src/sensors/data/pcd/data_1");
+		auto streamIterator = stream.begin();
+    	pcl::PointCloud<pcl::PointXYZI>::Ptr inputCloudI; 
 
-    while (!viewer->wasStopped ())
-    {
-        viewer->spinOnce ();
+
+	    while (!viewer->wasStopped ())
+   		{
+			// Clear viewer
+			viewer->removeAllPointClouds();
+			viewer->removeAllShapes();
+
+			// Load pcd and run obstacle detection process
+			inputCloudI = pointProcessorI->loadPcd((*streamIterator).string());
+        	cityBlock(viewer, pointProcessorI, inputCloudI);
+
+			streamIterator++;
+			if (streamIterator == stream.end())
+			{
+				streamIterator = stream.begin();
+			}
+
+        	viewer->spinOnce ();
+    	}
     } 
 }
