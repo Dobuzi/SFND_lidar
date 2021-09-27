@@ -118,8 +118,9 @@ void cityBlock(pcl::visualization::PCLVisualizer::Ptr& viewer)
     // Open 3D Viewer and display City Block
     bool render_PCD_raw = false;
     bool render_filtered_cloud = false;
-    bool render_obstacle_raw = true;
+    bool render_obstacle_raw = false;
     bool render_plane = true;
+	bool render_clusters = true;
     bool render_clusters_as_point = true;
     bool render_clusters_as_Box = true;
     bool render_clusters_as_BoxQ = false;
@@ -156,6 +157,40 @@ void cityBlock(pcl::visualization::PCLVisualizer::Ptr& viewer)
 	if (render_plane)
 	{
 		renderPointCloud(viewer, segmentCloud.second, "plane", Color(1, 1, 0));
+	}
+
+	float clusterTolerance = 1.0;
+	int minSize = 20;
+	int maxSize = 400;
+	std::vector<typename pcl::PointCloud<pcl::PointXYZI>::Ptr> clusters = pointProcessorI->Clustering (segmentCloud.first, clusterTolerance, minSize, maxSize);
+	if (render_clusters)
+	{
+		int clusterId = 0;
+		std::vector<Color> colors = {Color(1,0,0), Color(0,1,0), Color(0,0,1)};
+		
+		for (pcl::PointCloud<pcl::PointXYZI>::Ptr cluster : clusters)
+		{
+			std::cout << "cluster size ";
+			pointProcessorI->numPoints (cluster);
+			if (render_clusters_as_point)
+			{
+				renderPointCloud(viewer, cluster, "obstacle " + std::to_string(clusterId), colors[clusterId%colors.size()]);
+			}
+
+			if (render_clusters_as_Box)
+			{
+				Box box = pointProcessorI->BoundingBox(cluster);
+				renderBox(viewer, box, clusterId);
+			}
+
+			if (render_clusters_as_BoxQ)
+			{
+				BoxQ boxq = pointProcessorI->BoundingBoxQ(cluster);
+				renderBox(viewer, boxq, clusterId);
+			}
+
+			++clusterId;
+		}
 	}
 }
 
