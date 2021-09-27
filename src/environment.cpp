@@ -117,7 +117,12 @@ void cityBlock(pcl::visualization::PCLVisualizer::Ptr& viewer)
 {
     // Open 3D Viewer and display City Block
     bool render_PCD_raw = false;
-    bool render_filtered_cloud = true;
+    bool render_filtered_cloud = false;
+    bool render_obstacle_raw = true;
+    bool render_plane = true;
+    bool render_clusters_as_point = true;
+    bool render_clusters_as_Box = true;
+    bool render_clusters_as_BoxQ = false;
 
     ProcessPointClouds<pcl::PointXYZI>* pointProcessorI = new ProcessPointClouds<pcl::PointXYZI>();
     pcl::PointCloud<pcl::PointXYZI>::Ptr inputCloud = pointProcessorI->loadPcd("../src/sensors/data/pcd/data_1/0000000000.pcd");
@@ -126,7 +131,7 @@ void cityBlock(pcl::visualization::PCLVisualizer::Ptr& viewer)
         renderPointCloud(viewer, inputCloud, "inputCloud");
     }
 
-    float filterRes = 0.5;
+    float filterRes = 0.2;
     Eigen::Vector4f minPoint (-15, -10, -5, 1);
     Eigen::Vector4f maxPoint (15, 10, 5, 1);
 
@@ -139,6 +144,19 @@ void cityBlock(pcl::visualization::PCLVisualizer::Ptr& viewer)
         renderPointCloud(viewer, filterCloud, "filterCloud");
     }
 
+	int maxIterations = 30;
+	float distanceThreshold = 0.2;
+	std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr, pcl::PointCloud<pcl::PointXYZI>::Ptr> segmentCloud = pointProcessorI->SegmentPlane(filterCloud, maxIterations, distanceThreshold);
+	
+	if (render_obstacle_raw)
+	{
+		renderPointCloud(viewer, segmentCloud.first, "obstacles", Color(1, 0, 0));
+	}
+
+	if (render_plane)
+	{
+		renderPointCloud(viewer, segmentCloud.second, "plane", Color(1, 1, 0));
+	}
 }
 
 
