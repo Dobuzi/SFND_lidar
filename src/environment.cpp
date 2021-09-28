@@ -131,11 +131,11 @@ void cityBlock(pcl::visualization::PCLVisualizer::Ptr& viewer, ProcessPointCloud
     }
 
     float filterRes = 0.4;
-    Eigen::Vector4f minPoint (-15, -10, -5, 1);
-    Eigen::Vector4f maxPoint (15, 10, 5, 1);
+    Eigen::Vector4f minPoint (-15, -7, -333, 1);
+    Eigen::Vector4f maxPoint (15, 7, 5, 1);
 
     Eigen::Vector4f minPoint_roof (-2, -1.5, -0.5, 1);
-    Eigen::Vector4f maxPoint_roof (2, 1.5, 0.5, 1);
+    Eigen::Vector4f maxPoint_roof (1, 1.5, 0.5, 1);
 
     pcl::PointCloud<pcl::PointXYZI>::Ptr filterCloud = pointProcessorI->FilterCloud(inputCloud, filterRes, minPoint, maxPoint);
     if (render_filtered_cloud)
@@ -143,8 +143,8 @@ void cityBlock(pcl::visualization::PCLVisualizer::Ptr& viewer, ProcessPointCloud
         renderPointCloud(viewer, filterCloud, "filterCloud");
     }
 
-	int maxIterations = 15;
-	float distanceThreshold = 0.3;
+	int maxIterations = 20;
+	float distanceThreshold = 0.4;
 	std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr, pcl::PointCloud<pcl::PointXYZI>::Ptr> segmentCloud = pointProcessorI->SegmentPlane(filterCloud, maxIterations, distanceThreshold);
 	
 	if (render_obstacle_raw)
@@ -159,7 +159,7 @@ void cityBlock(pcl::visualization::PCLVisualizer::Ptr& viewer, ProcessPointCloud
 
 	float clusterTolerance = 1.0;
 	int minSize = 10;
-	int maxSize = 100;
+	int maxSize = 200;
 	std::vector<typename pcl::PointCloud<pcl::PointXYZI>::Ptr> clusters = pointProcessorI->Clustering (segmentCloud.first, clusterTolerance, minSize, maxSize);
 	if (render_clusters)
 	{
@@ -191,7 +191,6 @@ void cityBlock(pcl::visualization::PCLVisualizer::Ptr& viewer, ProcessPointCloud
 		}
 	}
 }
-
 
 //setAngle: SWITCH CAMERA ANGLE {XY, TopDown, Side, FPS}
 void initCamera(CameraAngle setAngle, pcl::visualization::PCLVisualizer::Ptr& viewer)
