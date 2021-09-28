@@ -131,7 +131,7 @@ void cityBlock(pcl::visualization::PCLVisualizer::Ptr& viewer, ProcessPointCloud
     }
 
     float filterRes = 0.4;
-    Eigen::Vector4f minPoint (-15, -7, -333, 1);
+    Eigen::Vector4f minPoint (-15, -7, -3, 1);
     Eigen::Vector4f maxPoint (15, 7, 5, 1);
 
     Eigen::Vector4f minPoint_roof (-2, -1.5, -0.5, 1);
