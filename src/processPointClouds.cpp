@@ -1,6 +1,7 @@
 // PCL lib Functions for processing point clouds 
 
 #include "processPointClouds.h"
+#include "selfmade/kdtree.h"
 #include <unordered_set>
 #include <random>
 #include <cmath>
@@ -109,10 +110,6 @@ std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT
 
         seg.setInputCloud (cloud);
         seg.segment (*inliers, *coefficients);
-        if (inliers->indices.size() == 0)
-        {
-            std::cerr << "Could not estimate a planar model for the given dataset." << std::endl;
-        }
     }
     else
     {
@@ -161,6 +158,11 @@ std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT
         }
     }
 
+    if (inliers->indices.size() == 0)
+    {
+        std::cerr << "Could not estimate a planar model for the given dataset." << std::endl;
+    }
+
     auto endTime = std::chrono::steady_clock::now();
     auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
     std::cout << "plane segmentation took " << elapsedTime.count() << " milliseconds" << std::endl;
@@ -180,33 +182,66 @@ std::vector<typename pcl::PointCloud<PointT>::Ptr> ProcessPointClouds<PointT>::C
     std::vector<typename pcl::PointCloud<PointT>::Ptr> clusters;
 
     // TODO:: Fill in the function to perform euclidean clustering to group detected obstacles
-    typename pcl::search::KdTree<PointT>::Ptr tree (new pcl::search::KdTree<PointT>);
-    tree->setInputCloud (cloud);
+    bool useBuiltIn = false;
 
-    std::vector<pcl::PointIndices> cluster_indices;
-
-    pcl::EuclideanClusterExtraction<PointT> ec;
-    ec.setClusterTolerance (clusterTolerance);
-    ec.setMinClusterSize (minSize);
-    ec.setMaxClusterSize (maxSize);
-    ec.setSearchMethod (tree);
-    ec.setInputCloud (cloud);
-    ec.extract (cluster_indices);
-
-    int j = 0;
-    
-    for (pcl::PointIndices getIndices : cluster_indices)
+    if (useBuiltIn)
     {
-        typename pcl::PointCloud<PointT>::Ptr cluster_cloud (new pcl::PointCloud<PointT>);
-        for (int idx : getIndices.indices)
-        {
-            cluster_cloud->push_back ((*cloud)[idx]);
-        }
-        cluster_cloud->width = cluster_cloud->size ();
-        cluster_cloud->height = 1;
-        cluster_cloud->is_dense = true;
+        typename pcl::search::KdTree<PointT>::Ptr tree (new pcl::search::KdTree<PointT>);
+        tree->setInputCloud (cloud);
 
-        clusters.push_back (cluster_cloud);
+        std::vector<pcl::PointIndices> cluster_indices;
+
+        pcl::EuclideanClusterExtraction<PointT> ec;
+        ec.setClusterTolerance (clusterTolerance);
+        ec.setMinClusterSize (minSize);
+        ec.setMaxClusterSize (maxSize);
+        ec.setSearchMethod (tree);
+        ec.setInputCloud (cloud);
+        ec.extract (cluster_indices);
+
+        int j = 0;
+        
+        for (pcl::PointIndices getIndices : cluster_indices)
+        {
+            typename pcl::PointCloud<PointT>::Ptr cluster_cloud (new pcl::PointCloud<PointT>);
+            for (int idx : getIndices.indices)
+            {
+                cluster_cloud->push_back ((*cloud)[idx]);
+            }
+            cluster_cloud->width = cluster_cloud->size ();
+            cluster_cloud->height = 1;
+            cluster_cloud->is_dense = true;
+
+            clusters.push_back (cluster_cloud);
+        }
+    }
+    else
+    {
+        // make tree
+        KdTree* tree = new KdTree;
+		std::vector<std::vector<float>> points;
+        for (int i = 0; i < cloud->points.size(); i++)
+        {
+			std::vector<float> point = {cloud->points[i].x, cloud->points[i].y, cloud->points[i].z};
+			points.push_back (point);
+            tree->insert(point, i);
+        }
+
+        // make clusters
+        std::vector<std::vector<int>> clusters_indices = euclideanCluster(points, tree, clusterTolerance, minSize, maxSize);
+        for (std::vector<int> cluster_indices : clusters_indices)
+        {
+            typename pcl::PointCloud<PointT>::Ptr cluster_cloud (new pcl::PointCloud<PointT>);
+            for (int idx : cluster_indices)
+            {
+                cluster_cloud->push_back((*cloud)[idx]);
+            }
+            cluster_cloud->width = cluster_cloud->size ();
+            cluster_cloud->height = 1;
+            cluster_cloud->is_dense = true;
+
+            clusters.push_back (cluster_cloud);
+        }
     }
 
     auto endTime = std::chrono::steady_clock::now();
