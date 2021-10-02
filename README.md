@@ -1,4 +1,4 @@
-# Processing the Lidar Point Cloud with PCL
+# Processing the LiDAR Point Cloud with PCL
 
 ## Result
 
@@ -9,6 +9,8 @@
 ## Pipe Line
 
 <img src="media/pipe_line.png" width="700" />
+
+## Visualization step by step
 
 1. Raw Data
    | Data 1 | Data 2 |
