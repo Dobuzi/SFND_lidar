@@ -2,34 +2,34 @@
 
 ## Result
 
-|                             Data 1                              |                             Data 2                              |
-| :-------------------------------------------------------------: | :-------------------------------------------------------------: |
-| <img src="media/final_result_1.gif" width="300" height="230" /> | <img src="media/final_result_2.gif" width="300" height="230" /> |
+|                      Data 1                       |                      Data 2                       |
+| :-----------------------------------------------: | :-----------------------------------------------: |
+| <img src="media/final_result_1.gif" width="250"/> | <img src="media/final_result_2.gif" width="300"/> |
 
 ## Pipe Line
 
-<img src="media/pipe_line.png" width="700" height="100" />
+<img src="media/pipe_line.png" width="700" />
 
 1. Raw Data
    | Data 1 | Data 2 |
    | :-------------------------------------------------------------: | :-------------------------------------------------------------: |
-   | <img src="media/raw_data_1.gif" width="300" height="230" /> | <img src="media/raw_data_2.gif" width="300" height="230" /> |
-1. Filtering
+   | <img src="media/raw_data_1.gif" width="300"/> | <img src="media/raw_data_2.gif" width="300"/> |
+2. Filtering
    | Data 1 | Data 2 |
    | :-------------------------------------------------------------: | :-------------------------------------------------------------: |
-   | <img src="media/filtering_data_1.gif" width="300" height="230" /> | <img src="media/filtering_data_2.gif" width="300" height="230" /> |
-1. Segment
+   | <img src="media/filtering_data_1.gif" width="300"/> | <img src="media/filtering_data_2.gif" width="250"/> |
+3. Segment
    | Data 1 | Data 2 |
    | :-------------------------------------------------------------: | :-------------------------------------------------------------: |
-   | <img src="media/segment_data_1.gif" width="300" height="230" /> | <img src="media/segment_data_2.gif" width="300" height="230" /> |
-1. Clustering
+   | <img src="media/segment_data_1.gif" width="300"/> | <img src="media/segment_data_2.gif" width="300"/> |
+4. Clustering
    | Data 1 | Data 2 |
    | :-------------------------------------------------------------: | :-------------------------------------------------------------: |
-   | <img src="media/clustering_data_1.gif" width="300" height="230" /> | <img src="media/clustering_data_2.gif" width="300" height="230" /> |
-1. Rendering
+   | <img src="media/clustering_data_1.gif" width="300"/> | <img src="media/clustering_data_2.gif" width="300"/> |
+5. Rendering
    | Data 1 | Data 2 |
    | :-------------------------------------------------------------: | :-------------------------------------------------------------: |
-   | <img src="media/rendering_data_1.gif" width="300" height="230" /> | <img src="media/rendering_data_2.gif" width="300" height="230" /> |
+   | <img src="media/rendering_data_1.gif" width="300"/> | <img src="media/rendering_data_2.gif" width="300"/> |
 
 ## Workspace
 
